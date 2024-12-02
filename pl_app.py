@@ -18,7 +18,7 @@ with st.sidebar:
     )
 
 # Título principal
-st.title("Data Analysis Dashboard - Maruti Suzuki")
+st.title("Packing List - Maruti Suzuki")
 st.markdown("---")
 
 # Subir y procesar archivos
