@@ -82,11 +82,11 @@ if uploaded_files:
             st.dataframe(combined_data)
 
             # Botón para descargar la tabla combinada
-            csv_data = combined_data.to_excel(index=False)
+            csv_data = combined_data.to_csv(index=False)
             st.download_button(
                 label="Descargar tabla combinada como CSV",
                 data=csv_data,
-                file_name="datos_combinados.xlsx",
+                file_name="datos_combinados.csv",
                 mime="text/csv"
             )
 else:
