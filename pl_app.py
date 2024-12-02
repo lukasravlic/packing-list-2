@@ -3,7 +3,7 @@ import pandas as pd
 
 # Configuración de la página
 st.set_page_config(
-    page_title="Data Analysis Dashboard",
+    page_title="Proceso de consolidacion packing list",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -82,11 +82,11 @@ if uploaded_files:
             st.dataframe(combined_data)
 
             # Botón para descargar la tabla combinada
-            csv_data = combined_data.to_csv(index=False)
+            csv_data = combined_data.to_excel(index=False)
             st.download_button(
                 label="Descargar tabla combinada como CSV",
                 data=csv_data,
-                file_name="datos_combinados.csv",
+                file_name="datos_combinados.xlsx",
                 mime="text/csv"
             )
 else:
