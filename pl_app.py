@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
+from io import BytesIO  # Para crear archivos en memoria
 
 # Configuración de la página
 st.set_page_config(
-    page_title="Proceso de consolidacion packing list",
+    page_title="Proceso de consolidación packing list",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -44,17 +45,13 @@ if uploaded_files:
 
             # Mostrar vista previa
             st.write(f"Archivo cargado: **{uploaded_file.name}**:")
-            #st.dataframe(df.head())  # Mostrar las primeras filas del archivo
         except Exception as e:
-            st.error(f"Error al leer el archivo {uploaded_file.name}: {e}")
+            st.error(f"Error al leer el archivo {uploaded_file.name}: {e}")#estra el stack trace completo para depuración
 
-    # Combinar todos los archivos cargados
+    # Combinar todos los DataFrames procesados
     if data_frames:
         combined_data = pd.concat(data_frames, ignore_index=True)
-        st.success("Archivos combinados exitosamente.")
-
-        combined_data = combined_data[
-            ['Cod. Material de Proveedor despachado', 'Cantidad solicitada', 'Nro. De Orden – Prefijo']]
+        st.success("Archivos procesados y combinados exitosamente.")
 
         # Inputs para agregar nuevas columnas
         st.subheader("Ingrese datos para agregar nuevas columnas")
@@ -65,7 +62,7 @@ if uploaded_files:
         # Dropdown para "Tipo de Contenedor"
         container_type = st.selectbox(
             "Seleccione el tipo de contenedor",
-            options=["40HC", "4'STD", "Tipo 3", "Tipo 4"]
+            options=["40HC", "20STD", "20DRY", "40DRY"]
         )
 
         # Campo de texto para "Contenedor"
@@ -76,18 +73,34 @@ if uploaded_files:
             combined_data["DT"] = new_column_text
             combined_data["Tipo de Contenedor"] = container_type
             combined_data["Contenedor"] = container
+            combined_data["Pallet"] = 'P1'
+            combined_data["Bulto"] = 'B1'
+            combined_data["Cajon"] = 'C1'
 
+
+           
             # Mostrar tabla con las nuevas columnas
             st.subheader("Tabla Combinada con Nuevas Columnas")
+            
+            combined_data = combined_data[['DT','Tipo de Contenedor','Contenedor','Pallet','Bulto','Cajon', 'Cod. Material de Proveedor despachado','Cantidad Facturada', 'Unidad de Medida facturada', 'Nro. De Orden – Prefijo']]
+            
             st.dataframe(combined_data)
 
-            # Botón para descargar la tabla combinada
-            csv_data = combined_data.to_csv(index=False)
+            
+           
+            # Crear un archivo Excel en memoria
+            output = BytesIO()
+            with pd.ExcelWriter(output, engine="openpyxl") as writer:
+                combined_data.to_excel(writer, index=False, sheet_name="Datos Combinados")
+            excel_data = output.getvalue()
+
+
+            # Botón para descargar el archivo Excel
             st.download_button(
-                label="Descargar tabla combinada como CSV",
-                data=csv_data,
-                file_name="datos_combinados.csv",
-                mime="text/csv"
+                label="Descargar tabla combinada como Excel",
+                data=excel_data,
+                file_name="datos_combinados.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 else:
     st.warning("Por favor, suba uno o más archivos Excel para continuar.")
